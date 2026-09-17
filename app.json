@@ -8,10 +8,9 @@
     "userId": "suhe",
     "name": "苏河"
   },
-  "backend": {
-    "command": "python3 server.py",
-    "healthPath": "/health"
-  },
+  "url": "http://47.93.187.177:3403/",
+  "remoteUrl": "http://47.93.187.177:3403/",
+  "appMode": "remote",
   "stateSchema": {
     "type": "object",
     "properties": {
