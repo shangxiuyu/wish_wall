@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7F4EC"/>
+      <stop offset="100%" stop-color="#E5DFD0"/>
+    </linearGradient>
+    <linearGradient id="stripGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#B8402D"/>
+      <stop offset="100%" stop-color="#8F2A1B"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2D279"/>
+      <stop offset="100%" stop-color="#BF953F"/>
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- 背景底板 -->
+  <rect width="96" height="96" rx="22" fill="url(#bgGrad)"/>
+  <rect x="2" y="2" width="92" height="92" rx="20" fill="none" stroke="#D3CABE" stroke-width="1.2"/>
+
+  <!-- 顶部悬挂黑色导轨 -->
+  <line x1="12" y1="20" x2="84" y2="20" stroke="#2C2D30" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 导轨中心节点 -->
+  <circle cx="48" cy="20" r="5.5" fill="#1F2023"/>
+  <circle cx="48" cy="20" r="2" fill="#FAF7EE"/>
+
+  <!-- 悬挂吊绳 -->
+  <line x1="48" y1="25.5" x2="48" y2="34" stroke="#8E887E" stroke-width="1.5"/>
+
+  <!-- 祈愿书签主体 (深红朱砂金边燕尾签) -->
+  <g filter="url(#dropShadow)">
+    <path d="M 32 34 L 64 34 L 64 82 L 48 74 L 32 82 Z" fill="url(#stripGrad)"/>
+    <!-- 金色边饰虚线 -->
+    <path d="M 35 37 L 61 37 L 61 77 L 48 70 L 35 77 Z" fill="none" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="2,1.5"/>
+    
+    <!-- 穿孔金眼 -->
+    <circle cx="48" cy="40" r="2.8" fill="url(#goldGrad)"/>
+    <circle cx="48" cy="40" r="1.4" fill="#691B10"/>
+
+    <!-- 签上竖排装饰文字或符印 -->
+    <text x="48" y="52" text-anchor="middle" font-family="'Songti SC', 'Noto Serif SC', 'SimSun', serif" font-size="9" font-weight="700" fill="#FFF6EA" letter-spacing="1">祈</text>
+    <text x="48" y="63" text-anchor="middle" font-family="'Songti SC', 'Noto Serif SC', 'SimSun', serif" font-size="9" font-weight="700" fill="#FFF6EA" letter-spacing="1">愿</text>
+  </g>
+</svg>

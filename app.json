@@ -1,0 +1,105 @@
+{
+  "name": "许愿墙",
+  "app_id": "wish-wall",
+  "version": "1.0.0",
+  "description": "写下心愿挂上书签，与案头同频者一同祈愿留痕。精美东方案头导轨设计，支持9款经典与拟物书签形态（古拙竹简、泥金宣纸、织金燕尾、神社绘马、时光车票等），具备物理音效、动态粒子及本地与后端持久化。",
+  "icon": "assets/icon.png",
+  "author": {
+    "userId": "suhe",
+    "name": "苏河"
+  },
+  "backend": {
+    "command": "python3 server.py",
+    "healthPath": "/health"
+  },
+  "stateSchema": {
+    "type": "object",
+    "properties": {
+      "total_wishes": {
+        "type": "number",
+        "description": "许愿墙当前悬挂的书签总数"
+      },
+      "latest_wish": {
+        "type": "object",
+        "description": "最新一条悬挂的心愿详情"
+      }
+    }
+  },
+  "actions": [],
+  "scenarios": [
+    {
+      "id": "list_wishes",
+      "title": "查看许愿墙上的所有心愿",
+      "description": "浏览案头导轨上已悬挂的心愿签列表、作者与挂签时间",
+      "maps_to": [
+        "list_wishes"
+      ]
+    },
+    {
+      "id": "add_wish",
+      "title": "在许愿墙上挂上一枚新心愿签",
+      "description": "写下一条心愿（最多30字）、署名，并挑选心仪的书签皮肤（竹简、绘马、洒金、燕尾等）挂上轨道",
+      "maps_to": [
+        "add_wish"
+      ]
+    },
+    {
+      "id": "get_wall_stats",
+      "title": "获取许愿墙数据概览",
+      "description": "查看挂签总数、最新挂签时间等统计信息",
+      "maps_to": [
+        "get_wall_stats"
+      ]
+    }
+  ],
+  "apiActions": [
+    {
+      "name": "list_wishes",
+      "description": "获取许愿墙上当前悬挂的所有心愿书签，按时间升序排列。",
+      "method": "GET",
+      "path": "/api/wishes",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "add_wish",
+      "description": "替用户在许愿墙上悬挂一枚新的心愿书签。支持选择9种皮肤：ash(素灰), indigo(藏蓝), matcha(黛绿), vermilion(朱砂红笺), bamboo(古拙竹简), goldpaper(泥金宣纸), ribbon(织金燕尾), ema(神社绘马), ticket(时光车票)。",
+      "method": "POST",
+      "path": "/api/wishes",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "心愿内容，限制 1~30 字"
+          },
+          "author": {
+            "type": "string",
+            "description": "心愿落款署名，限制 1~5 字"
+          },
+          "skin": {
+            "type": "string",
+            "description": "书签皮肤标识：ash/indigo/matcha/vermilion/bamboo/goldpaper/ribbon/ema/ticket，默认为 ash",
+            "enum": ["ash", "indigo", "matcha", "vermilion", "bamboo", "goldpaper", "ribbon", "ema", "ticket"]
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+    },
+    {
+      "name": "get_wall_stats",
+      "description": "获取许愿墙的当前状态与统计（总挂签数、最新一条愿望等）。",
+      "method": "GET",
+      "path": "/api/state",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  "exposure": "agent-allowed"
+}

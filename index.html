@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>许愿墙 · 案头挂签祈愿</title>
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <style>
+    :root {
+      --font-serif: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "SimSun", "STSong", serif;
+      --font-mono: "SF Mono", "Consolas", "Monaco", "Courier New", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --ink: #2C2D30;
+      --ink-soft: #63615C;
+      --ink-subtle: #8E8A83;
+      --bg-cream: #F5F1E8;
+      --paper-card: #FAF8F2;
+      --border-card: #DDD7C9;
+      --accent-red: #B8402D;
+      --accent-teal: #78B7BD;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      background-color: #080C16;
+    }
+
+    body {
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background-color: var(--bg-cream);
+      background-image: url("assets/paper-texture.webp");
+      background-repeat: repeat;
+      background-size: 360px auto;
+      line-height: 1.6;
+      overflow: hidden; /* 全屏沉浸式，无页面垂直滚动条 */
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* 🌙 深色夜幕主题模式 (Dark Night Sky Mode) */
+    body.lamp-mode {
+      --ink: #EDE9E1;
+      --ink-soft: #B2ACB2;
+      --ink-subtle: #7A8498;
+      --bg-cream: #080C16;
+      --paper-card: #121826;
+      --border-card: #253147;
+      background-color: #080C16 !important;
+      background-image: 
+        radial-gradient(circle at 72% 16%, rgba(65, 95, 175, 0.45) 0%, transparent 48%),
+        radial-gradient(circle at 20% 75%, rgba(35, 55, 105, 0.35) 0%, transparent 55%),
+        linear-gradient(180deg, #060911 0%, #0A1020 52%, #05070D 100%) !important;
+      background-repeat: no-repeat !important;
+      background-size: 100% 100% !important;
+      color: var(--ink);
+    }
+
+    /* 🌌 全屏夜幕星空图层 */
+    .night-sky-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
+      overflow: hidden;
+    }
+
+    body.lamp-mode .night-sky-layer {
+      opacity: 1;
+    }
+
+    /* 🌙 皎洁清冷的明月 (带微光月晕呼吸与月华漫射) */
+    .night-moon {
+      position: absolute;
+      top: 18px;
+      right: 235px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, #FFFFFA 0%, #F7EFCF 42%, #DFCB96 82%, #BCA364 100%);
+      box-shadow: 
+        0 0 22px rgba(255, 245, 215, 0.65),
+        0 0 55px rgba(185, 215, 255, 0.35),
+        0 0 95px rgba(140, 185, 255, 0.22),
+        inset -4px -4px 8px rgba(160, 130, 50, 0.35);
+      filter: drop-shadow(0 0 16px rgba(255, 240, 190, 0.6));
+      animation: moonGlow 5.5s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+
+    @keyframes moonGlow {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 245, 215, 0.5), 0 0 50px rgba(185, 215, 255, 0.25);
+      }
+      100% {
+        transform: scale(1.04);
+        box-shadow: 0 0 32px rgba(255, 245, 215, 0.8), 0 0 75px rgba(185, 215, 255, 0.45), 0 0 110px rgba(140, 185, 255, 0.25);
+      }
+    }
+
+    /* ✨ 繁星点点闪烁背景 */
+    .night-stars {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .star-dot {
+      position: absolute;
+      border-radius: 50%;
+      background: #FFFFFF;
+      pointer-events: none;
+      animation: starTwinkle ease-in-out infinite alternate;
+    }
+
+    @keyframes starTwinkle {
+      0% {
+        opacity: 0.25;
+        transform: scale(0.75);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1.25);
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.85);
+      }
+    }
+
+    /* 🌠 唯美流星划过天际 (Shooting Stars / Meteors) */
+    .shooting-star {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, #FFFFFF 0%, rgba(255, 242, 210, 0.8) 25%, rgba(200, 225, 255, 0.3) 65%, transparent 100%);
+      border-radius: 999px;
+      opacity: 0;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
+      pointer-events: none;
+    }
+
+    .shooting-star::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -1.5px;
+      width: 5px;
+      height: 5px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 0 8px 2px #FFFFFF, 0 0 14px 4px rgba(255, 245, 200, 0.8);
+    }
+
+    /* 4 条流星错开周期与天际轨迹 */
+    .shooting-star-1 {
+      top: 12%;
+      left: 65%;
+      width: 150px;
+      animation: shoot1 6.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+
+    .shooting-star-2 {
+      top: 26%;
+      left: 38%;
+      width: 130px;
+      animation: shoot2 7.8s cubic-bezier(0.22, 1, 0.36, 1) 2.2s infinite;
+    }
+
+    .shooting-star-3 {
+      top: 8%;
+      left: 45%;
+      width: 160px;
+      animation: shoot3 8.2s cubic-bezier(0.22, 1, 0.36, 1) 4.5s infinite;
+    }
+
+    .shooting-star-4 {
+      top: 40%;
+      left: 80%;
+      width: 120px;
+      animation: shoot4 7s cubic-bezier(0.22, 1, 0.36, 1) 1.2s infinite;
+    }
+
+    @keyframes shoot1 {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-35deg) scaleX(0.1);
+        opacity: 0;
+      }
+      8% {
+        opacity: 1;
+        transform: translate3d(-70px, 49px, 0) rotate(-35deg) scaleX(1);
+      }
+      18% {
+        transform: translate3d(-280px, 196px, 0) rotate(-35deg) scaleX(1.3);
+        opacity: 0;
+      }
+      100% {
+        transform: translate3d(-280px, 196px, 0) rotate(-35deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes shoot2 {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-32deg) scaleX(0.1);
+        opacity: 0;
+      }
+      7% {
+        opacity: 0.95;
+        transform: translate3d(-65px, 41px, 0) rotate(-32deg) scaleX(1);
+      }
+      17% {
+        transform: translate3d(-260px, 162px, 0) rotate(-32deg) scaleX(1.2);
+        opacity: 0;
+      }
+      100% {
+        transform: translate3d(-260px, 162px, 0) rotate(-32deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes shoot3 {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-38deg) scaleX(0.1);
+        opacity: 0;
+      }
+      9% {
+        opacity: 1;
+        transform: translate3d(-80px, 62px, 0) rotate(-38deg) scaleX(1);
+      }
+      20% {
+        transform: translate3d(-300px, 234px, 0) rotate(-38deg) scaleX(1.35);
+        opacity: 0;
+      }
+      100% {
+        transform: translate3d(-300px, 234px, 0) rotate(-38deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes shoot4 {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-30deg) scaleX(0.1);
+        opacity: 0;
+      }
+      8% {
+        opacity: 0.9;
+        transform: translate3d(-60px, 35px, 0) rotate(-30deg) scaleX(1);
+      }
+      19% {
+        transform: translate3d(-240px, 138px, 0) rotate(-30deg) scaleX(1.2);
+        opacity: 0;
+      }
+      100% {
+        transform: translate3d(-240px, 138px, 0) rotate(-30deg);
+        opacity: 0;
+      }
+    }
+
+    /* 整体容器：铺满全屏，底部 0 边距让滚动条直接贴底 */
+    .wish-wall-app {
+      width: 100vw;
+      height: 100vh;
+      padding: 16px 32px 0;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 彻底去除卡片、去除边框、去除外阴影 */
+    .guestbook-notebook {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* 顶部标题栏：极简大气，无冗余描述 */
+    .guestbook-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: none;
+      padding-bottom: 4px;
+      margin-bottom: 2px;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .gb-title-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gb-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .gb-main-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .gb-stamp-count {
+      display: none; /* 去除红框描述字段 */
+    }
+
+    .gb-subtitle {
+      display: none; /* 去除红框描述字段 */
+    }
+
+    /* 顶部右侧操作按钮容器 */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 右上角「🎋 许愿」按钮：精致东方朱红金边印章风格 */
+    .wish-open-modal-btn {
+      background: #B8402D;
+      color: #FFFFFF;
+      border: 1px solid #992B1B;
+      border-radius: 6px;
+      padding: 7px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font-serif);
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(184, 64, 45, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .wish-open-modal-btn:hover {
+      background: #C74934;
+      transform: translateY(-1.5px);
+      box-shadow: 0 5px 15px rgba(184, 64, 45, 0.38);
+    }
+
+    .wish-open-modal-btn:active {
+      transform: translateY(0);
+    }
+
+    /* 许愿墙主视口：垂直填满页面剩余高度直达底部 */
+    #vaultUnlockedView {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      margin-top: 6px;
+    }
+
+    /* 🎋 导轨展示区：纵向拉满，使横向滚动条紧贴屏幕最底部 */
+    .wish-wall-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+      min-height: 0;
+      width: 100%;
+    }
+
+    .wish-rail-container {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* 书签节点横滑视口：高度填满至底端，让滚动条默认落在屏幕物理底部 */
+    .wish-rail-scroll {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      z-index: 2;
+      padding: 10px 0 0;
+      cursor: grab;
+    }
+
+    .wish-rail-scroll:active {
+      cursor: grabbing;
+    }
+
+    /* 内部导轨轨道，随心愿书签动态延展 */
+    .wish-rail-track {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 34px;
+      position: relative;
+      min-width: 100%;
+      padding: 6px 60px 10px 16px;
+    }
+
+    /* 横向贯穿的主轨道轴线与末端箭头 */
+    .wish-rail-axis {
+      position: absolute;
+      top: 19px; /* 居中贯穿直径 26px 的编号圆标中心: 6px padding + 13px */
+      left: 0;
+      right: 20px;
+      height: 2.5px;
+      background: #2C2D30;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .wish-rail-axis::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: -4px;
+      width: 0;
+      height: 0;
+      border-left: 11px solid #2C2D30;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    /* 自定义精细横向滚动条 */
+    .wish-rail-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .wish-rail-scroll::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 3px;
+    }
+    .wish-rail-scroll::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.22);
+      border-radius: 3px;
+    }
+    .wish-rail-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* 单个祈愿书签节点 (包含圆圈编号、时间、吊绳、书签条) */
+    .wish-node-item {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.25s cubic-bezier(0.22, 0.9, 0.3, 1);
+      contain-intrinsic-size: 80px 320px;
+      user-select: none;
+    }
+
+    .wish-node-item:hover {
+      transform: translateY(-4px);
+    }
+
+    /* 顶部圆圈数字印记 (1, 2, 3...) */
+    .wish-node-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #1F2023;
+      color: #FAF7EE;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+      z-index: 3;
+      transition: all 0.2s ease;
+    }
+
+    .wish-node-item:hover .wish-node-badge {
+      transform: scale(1.12);
+      background: var(--accent-red);
+      color: #FFFFFF;
+    }
+
+    /* 时间戳 (两行等宽排版) */
+    .wish-node-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      line-height: 1.25;
+      color: var(--ink-soft);
+      text-align: center;
+      margin-top: 6px;
+      white-space: pre-line;
+      letter-spacing: -0.02em;
+      opacity: 0.85;
+    }
+
+    /* 穿孔与垂挂细绳 */
+    .wish-node-cord {
+      width: 1px;
+      height: 12px;
+      background: #8E887E;
+      margin: 2px 0 0;
+      position: relative;
+      transition: background-color 0.2s ease;
+    }
+
+    .wish-node-cord::after {
+      content: "";
+      position: absolute;
+      bottom: -3px;
+      left: -2.5px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6E685F;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 🎋 竖向祈愿书签实体 (Bookmark Strip - 纯竖版单行) */
+    .wish-bookmark-strip {
+      width: 48px;
+      min-height: 180px;
+      height: auto;
+      background: #96938F; /* 默认雅灰 */
+      color: #FFFFFF;
+      padding: 14px 6px 12px 6px;
+      border-radius: 2px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      transform-origin: top center;
+      transition: all 0.3s cubic-bezier(0.22, 0.9, 0.3, 1);
+      margin-top: 4px;
+    }
+
+    /* 悬停时的自然微风轻摇效果 */
+    .wish-node-item:hover .wish-bookmark-strip {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transform: rotate(1.5deg);
+    }
+
+    .wish-node-item:nth-child(even):hover .wish-bookmark-strip {
+      transform: rotate(-1.5deg);
+    }
+
+    /* 书签顶部穿孔孔眼 */
+    .wish-bookmark-eyelet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #F7F5EE;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    /* 纯竖版单行愿望文字核心排版 */
+    .wish-bookmark-text {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      white-space: nowrap !important; /* 强制纯单行，绝不折行 */
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      line-height: 1.4;
+      color: #FFFFFF;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      padding: 4px 0 12px 0;
+      word-break: keep-all;
+      flex: 0 0 auto;
+    }
+
+    /* 书签底部的落款署名 */
+    .wish-bookmark-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .wish-bookmark-author {
+      font-family: var(--font-serif);
+      font-size: 11px;
+      opacity: 0.9;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 44px;
+      text-align: center;
+      color: #FFFFFF;
+    }
+
+    /* 新增挂签坠落微动效 */
+    @keyframes wishHangDrop {
+      0% {
+        opacity: 0;
+        transform: translateY(-22px) scale(0.9);
+      }
+      60% {
+        transform: translateY(4px) rotate(3deg);
+      }
+      80% {
+        transform: translateY(-2px) rotate(-1.5deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+    }
+
+    .wish-node-item.is-new {
+      animation: wishHangDrop 0.85s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+    }
+
+    /* 🎨 9款许愿签皮肤体系 */
+    
+    /* 1. 素灰 · 雅致素笺 */
+    .wish-bookmark-strip.skin-ash {
+      background: #8E8A84;
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* 2. 藏蓝 · 静夜深蓝 */
+    .wish-bookmark-strip.skin-indigo {
+      background: #2D3D52;
+      color: #F4F7FB;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(20, 30, 45, 0.2);
+    }
+    .wish-bookmark-strip.skin-indigo .wish-bookmark-eyelet {
+      background: #4B6282;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    .wish-bookmark-strip.skin-indigo .wish-bookmark-author {
+      color: #B5CBEC;
+    }
+
+    /* 3. 黛绿 · 松烟竹青 */
+    .wish-bookmark-strip.skin-matcha {
+      background: #3F5244;
+      color: #F5FAF6;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(25, 40, 30, 0.2);
+    }
+    .wish-bookmark-strip.skin-matcha .wish-bookmark-eyelet {
+      background: #5E7A65;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    .wish-bookmark-strip.skin-matcha .wish-bookmark-author {
+      color: #BFDCC5;
+    }
+
+    /* 4. 朱砂 · 上岸红笺 */
+    .wish-bookmark-strip.skin-vermilion {
+      background: #B8402D;
+      color: #FFF6EA;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(184, 64, 45, 0.25);
+    }
+    .wish-bookmark-strip.skin-vermilion .wish-bookmark-eyelet {
+      background: #E8C15A;
+      box-shadow: 0 0 0 1px #7D2012;
+    }
+    .wish-bookmark-strip.skin-vermilion .wish-bookmark-author {
+      color: #FFE5B4;
+    }
+
+    /* 5. 古拙 · 楠木竹简 */
+    .wish-bookmark-strip.skin-bamboo {
+      background: #C7A269;
+      background-image: repeating-linear-gradient(90deg, rgba(80, 50, 15, 0.05) 0px, rgba(80, 50, 15, 0.05) 3px, transparent 3px, transparent 8px);
+      color: #382412;
+      border: 1px solid #AD854C;
+      box-shadow: 0 4px 14px rgba(80, 50, 20, 0.2);
+    }
+    .wish-bookmark-strip.skin-bamboo .wish-bookmark-eyelet {
+      background: #6E461F;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .wish-bookmark-strip.skin-bamboo .wish-bookmark-text {
+      color: #382412;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-bamboo .wish-bookmark-author {
+      color: #57371A;
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-bamboo .wish-bookmark-footer {
+      border-top-color: rgba(87, 55, 26, 0.3);
+    }
+
+    /* 6. 泥金 · 洒金宣纸 */
+    .wish-bookmark-strip.skin-goldpaper {
+      background: #FAF6EB;
+      background-image: 
+        radial-gradient(circle at 25% 18%, rgba(212, 175, 55, 0.6) 1px, transparent 1.6px),
+        radial-gradient(circle at 75% 42%, rgba(212, 175, 55, 0.7) 1.2px, transparent 2px),
+        radial-gradient(circle at 35% 68%, rgba(212, 175, 55, 0.5) 1px, transparent 1.6px),
+        radial-gradient(circle at 82% 88%, rgba(212, 175, 55, 0.75) 1.4px, transparent 2.2px);
+      background-size: 24px 28px;
+      color: #2D2721;
+      border: 1px solid #D4AF37;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.22), inset 0 0 0 1px rgba(212, 175, 55, 0.35);
+    }
+    .wish-bookmark-strip.skin-goldpaper .wish-bookmark-eyelet {
+      background: #D4AF37;
+      box-shadow: 0 0 3px rgba(212, 175, 55, 0.7);
+    }
+    .wish-bookmark-strip.skin-goldpaper .wish-bookmark-text {
+      color: #2D2721;
+      text-shadow: none;
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-goldpaper .wish-bookmark-author {
+      color: #6B5435;
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-goldpaper .wish-bookmark-footer {
+      border-top: 1px dashed rgba(212, 175, 55, 0.45);
+    }
+
+    /* 7. 燕尾 · 织金飘带 (深V燕尾) */
+    .wish-bookmark-strip.skin-ribbon {
+      background: linear-gradient(180deg, #BA4934 0%, #9E3522 100%);
+      color: #FFF6EA;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 15px), 0% 100%);
+      box-shadow: 0 5px 16px rgba(160, 50, 30, 0.38);
+      border-left: 1.5px dashed rgba(255, 220, 100, 0.65);
+      border-right: 1.5px dashed rgba(255, 220, 100, 0.65);
+      padding-bottom: 22px;
+      position: relative;
+    }
+    .wish-bookmark-strip.skin-ribbon .wish-bookmark-eyelet {
+      background: #FFE5A3;
+      box-shadow: 0 0 0 1px #8A2218;
+    }
+    .wish-bookmark-strip.skin-ribbon .wish-bookmark-text {
+      color: #FFF8EE;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+    .wish-bookmark-strip.skin-ribbon .wish-bookmark-author {
+      color: #FFEBB0;
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-ribbon .wish-bookmark-footer {
+      border-top-color: rgba(255, 220, 100, 0.45);
+    }
+
+    /* 8. 绘马 · 神社木牌 (屋檐裁切) */
+    .wish-bookmark-strip.skin-ema {
+      background: #D8B178;
+      background-image: repeating-linear-gradient(90deg, rgba(70, 40, 10, 0.04) 0px, rgba(70, 40, 10, 0.04) 2px, transparent 2px, transparent 7px);
+      color: #382210;
+      clip-path: polygon(50% 0%, 100% 16px, 100% 100%, 0% 100%, 0% 16px);
+      box-shadow: 0 5px 16px rgba(80, 50, 15, 0.28);
+      border: none;
+      padding-top: 20px;
+      position: relative;
+    }
+    .wish-bookmark-strip.skin-ema::before {
+      content: "奉納";
+      position: absolute;
+      top: 9px;
+      left: 0;
+      right: 0;
+      font-family: var(--font-serif);
+      font-size: 7.5px;
+      color: #A3281E;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+    }
+    .wish-bookmark-strip.skin-ema .wish-bookmark-eyelet {
+      background: #A3281E;
+      box-shadow: 0 0 0 1.5px #D4AF37;
+      margin-top: 6px;
+      margin-bottom: 8px;
+    }
+    .wish-bookmark-strip.skin-ema .wish-bookmark-text {
+      color: #382210;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45), 0 -1px 0 rgba(0, 0, 0, 0.2);
+      font-weight: 700;
+    }
+    .wish-bookmark-strip.skin-ema .wish-bookmark-author {
+      color: #8A2218;
+      font-weight: 700;
+    }
+    .wish-bookmark-strip.skin-ema .wish-bookmark-footer {
+      border-top: 1px dashed rgba(138, 34, 24, 0.35);
+    }
+
+    /* 9. 车票 · 齿孔票根 (打孔检票) */
+    .wish-bookmark-strip.skin-ticket {
+      background: #EBE6DC;
+      color: #262422;
+      border: 1px dashed #A39B8A;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+      position: relative;
+      padding-top: 18px;
+    }
+    .wish-bookmark-strip.skin-ticket::before {
+      content: "№ 2026·EXPRESS";
+      position: absolute;
+      top: 5px;
+      left: 0;
+      right: 0;
+      font-family: var(--font-mono);
+      font-size: 6.5px;
+      color: #8C4035;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .wish-bookmark-strip.skin-ticket::after {
+      content: "";
+      position: absolute;
+      top: 45%;
+      left: -5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #F4EFE6;
+      box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.25), calc(48px - 0px) 0 0 #F4EFE6;
+      pointer-events: none;
+    }
+    .wish-bookmark-strip.skin-ticket .wish-bookmark-eyelet {
+      margin-top: 4px;
+      background: #EBE6DC;
+      box-shadow: inset 0 0 0 1.5px #7D7567;
+    }
+    .wish-bookmark-strip.skin-ticket .wish-bookmark-text {
+      color: #242220;
+      text-shadow: none;
+      font-family: var(--font-mono), var(--font-serif);
+      font-size: 13.5px;
+    }
+    .wish-bookmark-strip.skin-ticket .wish-bookmark-author {
+      color: #595349;
+      font-family: var(--font-mono);
+    }
+    .wish-bookmark-strip.skin-ticket .wish-bookmark-footer {
+      border-top: 1px dashed #A8A192;
+    }
+
+    /* 10. 元宝 · 聚宝招财 (福运金坠) */
+    .wish-bookmark-strip.skin-ingot {
+      background: linear-gradient(180deg, #8E1F18 0%, #75140F 60%, #5C0C08 100%);
+      color: #FFEBB0;
+      border: 1px solid rgba(230, 185, 75, 0.55);
+      box-shadow: 0 4px 16px rgba(138, 28, 20, 0.32), inset 0 0 0 1px rgba(255, 220, 100, 0.2);
+      position: relative;
+      overflow: visible; /* 必须允许底部金元宝挂坠悬垂探出 */
+      margin-bottom: 26px; /* 预留出下方元宝摆动展示空间 */
+    }
+    .wish-bookmark-strip.skin-ingot::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 2.5px;
+      right: 2.5px;
+      border-left: 1px dashed rgba(255, 220, 100, 0.32);
+      border-right: 1px dashed rgba(255, 220, 100, 0.32);
+      pointer-events: none;
+    }
+    .wish-bookmark-strip.skin-ingot .wish-bookmark-eyelet {
+      background: #F0C454;
+      box-shadow: 0 0 0 1.5px #75140F, 0 0 4px rgba(240, 196, 84, 0.65);
+    }
+    .wish-bookmark-strip.skin-ingot .wish-bookmark-text {
+      color: #FFF2C6;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 100, 0.28);
+      letter-spacing: 0.2em;
+    }
+    .wish-bookmark-strip.skin-ingot .wish-bookmark-author {
+      color: #FFDE8A;
+      font-weight: 600;
+    }
+    .wish-bookmark-strip.skin-ingot .wish-bookmark-footer {
+      border-top: 1px dashed rgba(245, 205, 100, 0.38);
+      position: relative;
+    }
+
+    /* 签底红丝绳与立体微晃小金元宝吊坠 */
+    .wish-ingot-pendant {
+      position: absolute;
+      bottom: -27px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: top center;
+      animation: ingotSway 3.6s ease-in-out infinite alternate;
+      z-index: 5;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .wish-ingot-pendant:hover {
+      animation: ingotFastSway 0.75s ease-in-out infinite alternate;
+    }
+    .ingot-cord {
+      width: 1.5px;
+      height: 13px;
+      background: #D93829;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    .ingot-bead {
+      position: absolute;
+      top: 4.5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3.5px;
+      height: 3.5px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFE885 0%, #D49D1D 100%);
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    }
+    .ingot-sycee {
+      margin-top: -1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 3px 5px rgba(100, 35, 5, 0.38));
+      transition: transform 0.2s ease;
+    }
+    .ingot-sycee:hover {
+      transform: scale(1.15);
+    }
+
+    @keyframes ingotSway {
+      0% { transform: translateX(-50%) rotate(-4.5deg); }
+      50% { transform: translateX(-50%) rotate(5deg); }
+      100% { transform: translateX(-50%) rotate(-3.5deg); }
+    }
+    @keyframes ingotFastSway {
+      0% { transform: translateX(-50%) rotate(-9deg); }
+      100% { transform: translateX(-50%) rotate(9deg); }
+    }
+
+    /* 11. 青玉 · 岁岁平安 (平安玉扣) */
+    .wish-bookmark-strip.skin-peace {
+      background: linear-gradient(180deg, #24362E 0%, #1A2922 60%, #121E19 100%);
+      color: #F0F7F3;
+      border: 1px solid rgba(175, 215, 195, 0.45);
+      box-shadow: 0 4px 16px rgba(18, 32, 26, 0.35), inset 0 0 0 1px rgba(220, 245, 235, 0.15);
+      position: relative;
+      overflow: visible; /* 允许白玉平安扣挂坠自然悬挂探出 */
+      margin-bottom: 30px; /* 预留出平安扣与朱红流苏的垂直展示高度 */
+    }
+    .wish-bookmark-strip.skin-peace::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 2.5px;
+      right: 2.5px;
+      border-left: 1px dashed rgba(180, 225, 205, 0.22);
+      border-right: 1px dashed rgba(180, 225, 205, 0.22);
+      pointer-events: none;
+    }
+    .wish-bookmark-strip.skin-peace .wish-bookmark-eyelet {
+      background: #D5E8DF;
+      box-shadow: 0 0 0 1.5px #1A2922, 0 0 4px rgba(213, 232, 223, 0.6);
+    }
+    .wish-bookmark-strip.skin-peace .wish-bookmark-text {
+      color: #F2FAF5;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 6px rgba(200, 240, 225, 0.25);
+      letter-spacing: 0.2em;
+    }
+    .wish-bookmark-strip.skin-peace .wish-bookmark-author {
+      color: #C0DECE;
+      font-weight: 500;
+    }
+    .wish-bookmark-strip.skin-peace .wish-bookmark-footer {
+      border-top: 1px dashed rgba(180, 220, 200, 0.3);
+      position: relative;
+    }
+
+    /* 签底白玉平安扣与朱红真丝流苏挂坠 */
+    .wish-peace-pendant {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: top center;
+      animation: peaceSway 4.2s ease-in-out infinite alternate;
+      z-index: 5;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .wish-peace-pendant:hover {
+      animation: peaceFastSway 0.8s ease-in-out infinite alternate;
+    }
+    .peace-cord {
+      width: 1.5px;
+      height: 10px;
+      background: #C43425;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+    .peace-disc {
+      margin-top: -1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 3px 6px rgba(15, 30, 25, 0.35));
+      transition: transform 0.2s ease;
+    }
+    .peace-disc:hover {
+      transform: scale(1.15);
+    }
+
+    /* 平安扣下方的朱红小流苏 */
+    .peace-tassel {
+      width: 3.5px;
+      height: 9px;
+      margin-top: -1px;
+      background: linear-gradient(180deg, #BA2E20 0%, #8C1C12 100%);
+      border-radius: 0 0 1.5px 1.5px;
+      box-shadow: 0 2px 4px rgba(140, 28, 18, 0.3);
+      position: relative;
+    }
+    .peace-tassel::after {
+      content: "";
+      position: absolute;
+      top: 1.5px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #FFE082; /* 金丝系绳结 */
+    }
+
+    @keyframes peaceSway {
+      0% { transform: translateX(-50%) rotate(-4deg); }
+      50% { transform: translateX(-50%) rotate(4.5deg); }
+      100% { transform: translateX(-50%) rotate(-3deg); }
+    }
+    @keyframes peaceFastSway {
+      0% { transform: translateX(-50%) rotate(-8deg); }
+      100% { transform: translateX(-50%) rotate(8deg); }
+    }
+
+    /* 许愿工坊表单区：彻底去卡片化、无边框、无白底阴影，自然沉浸在宣纸上 */
+    .guestbook-form-card {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+
+    .gb-textarea-wrap {
+      position: relative;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(4px);
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    }
+
+    .gb-textarea-wrap:focus-within {
+      border-color: rgba(0, 0, 0, 0.35);
+      background: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .gb-textarea {
+      width: 100%;
+      resize: none;
+      height: 52px;
+      border: none;
+      background: transparent;
+      padding: 12px 14px;
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      color: var(--ink);
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .gb-textarea::placeholder {
+      color: var(--ink-subtle);
+      font-size: 13.5px;
+    }
+
+    .gb-textarea-bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px 10px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .gb-author-inline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gb-author-prefix {
+      font-family: var(--font-serif);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+
+    .gb-author-input {
+      border: 1px dashed #BDB8AA;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-family: var(--font-serif);
+      font-size: 12.5px;
+      color: var(--ink);
+      width: 96px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .gb-author-input:focus {
+      border-style: solid;
+      border-color: var(--accent-teal);
+      background: #FFFFFF;
+    }
+
+    .gb-char-count {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-soft);
+      opacity: 0.75;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .gb-form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* 🎨 皮肤选择器 */
+    .wish-skin-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .wish-skin-label {
+      font-family: var(--font-serif);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+      margin-right: 2px;
+    }
+
+    .wish-skin-opt {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .wish-skin-opt input {
+      display: none;
+    }
+
+    .skin-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: block;
+      position: relative;
+    }
+
+    .skin-dot--ash { background: #8E8A84; }
+    .skin-dot--indigo { background: #2D3D52; }
+    .skin-dot--matcha { background: #3F5244; }
+    .skin-dot--vermilion { background: #B8402D; }
+    .skin-dot--bamboo { background: #C7A269; border-color: #AD854C; }
+    .skin-dot--goldpaper { background: linear-gradient(135deg, #FAF6EB 0%, #D4AF37 100%); border-color: #D4AF37; }
+    .skin-dot--ribbon { background: #BA4934; border-color: #D4AF37; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 75%, 0% 100%); border-radius: 2px; }
+    .skin-dot--ema { background: #D8B178; border-color: #A3281E; clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%); border-radius: 2px; }
+    .skin-dot--ticket { background: #EBE6DC; border: 1.5px dashed #7D7567; border-radius: 2px; }
+    .skin-dot--ingot {
+      background: linear-gradient(180deg, #FFE885 0%, #E8B936 60%, #B88315 100%);
+      border: 1px solid #75140F;
+      border-radius: 4px;
+      clip-path: polygon(0% 25%, 25% 12%, 75% 12%, 100% 25%, 85% 100%, 15% 100%);
+      position: relative;
+      box-shadow: 0 1px 4px rgba(184, 131, 21, 0.45);
+    }
+    .skin-dot--ingot::before {
+      content: "";
+      position: absolute;
+      top: 1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 7px;
+      height: 4px;
+      border-radius: 50%;
+      background: #FFF9D1;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    }
+    .skin-dot--peace {
+      background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #E2F0EA 55%, #A8CCBE 100%);
+      border: 1.5px solid #1B2922;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 1px 4px rgba(27, 41, 34, 0.35);
+    }
+    .skin-dot--peace::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #EAE6DF;
+      box-shadow: inset 0 1px 1.5px rgba(0, 0, 0, 0.35);
+    }
+
+    .wish-skin-opt:hover .skin-dot {
+      transform: scale(1.18);
+    }
+
+    .wish-skin-opt input:checked + .skin-dot {
+      transform: scale(1.25);
+      box-shadow: 0 0 0 2px var(--ink), 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 提交按钮 */
+    .gb-submit-btn {
+      padding: 8px 22px;
+      border-radius: 5px;
+      border: 1px solid #78B7BD;
+      background: #78B7BD;
+      color: #FFFFFF;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(120, 183, 189, 0.3);
+    }
+
+    .gb-submit-btn:hover {
+      background: #64A5AB;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(120, 183, 189, 0.4);
+    }
+
+    .gb-submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* 解密暗格视图 (彩蛋) */
+    .vault-locked-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+      text-align: center;
+    }
+
+    .vault-clue-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 28px 32px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .vault-clue-card.shake {
+      animation: shake 0.45s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .vault-clue-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .vault-clue-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .vault-cipher-form {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .vault-cipher-input {
+      padding: 8px 14px;
+      border: 1px solid #C8C2B3;
+      border-radius: 5px;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      width: 180px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .vault-cipher-input:focus {
+      border-color: var(--accent-teal);
+    }
+
+    .vault-cipher-btn {
+      padding: 8px 18px;
+      background: var(--ink);
+      color: #FAF7EE;
+      border: none;
+      border-radius: 5px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .vault-cipher-btn:hover {
+      background: #44464C;
+    }
+
+    .vault-skip-btn {
+      margin-top: 14px;
+      background: transparent;
+      border: none;
+      font-size: 12px;
+      color: var(--accent-teal);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .vault-feedback-tip {
+      margin-top: 14px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .vault-feedback-tip.error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #B8402D;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    /* 🎋 全屏毛玻璃遮罩与许愿工坊弹窗 Modal */
+    .wish-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 18, 15, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: wishModalFadeIn 0.22s ease-out forwards;
+    }
+
+    @keyframes wishModalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .wish-modal-card {
+      width: 100%;
+      max-width: 540px;
+      background-color: #F8F5EE;
+      background-image: url("assets/paper-texture.webp");
+      background-repeat: repeat;
+      background-size: 320px auto;
+      border: 1px solid #D8D2C4;
+      border-radius: 12px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.08);
+      padding: 24px 26px 22px;
+      position: relative;
+      animation: wishModalSlideUp 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    }
+
+    @keyframes wishModalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .wish-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+    }
+
+    .wish-modal-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wish-modal-close {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+
+    .wish-modal-close:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--ink);
+    }
+
+    /* 🌙 深色夜幕模式下各元素专属质感覆盖 */
+    body.lamp-mode .gb-main-title {
+      color: #F7F4EC;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+    }
+    body.lamp-mode .wish-rail-axis {
+      background: #E5E1D8;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+    body.lamp-mode .wish-rail-axis::after {
+      border-left-color: #E5E1D8;
+    }
+    body.lamp-mode .wish-node-badge {
+      background: #FAF7EE;
+      color: #1A1F2C;
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.25);
+    }
+    body.lamp-mode .wish-node-time {
+      color: #C4C0B5;
+    }
+    body.lamp-mode .wish-node-cord {
+      background: #A09E96;
+    }
+    body.lamp-mode .wish-rail-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.26);
+    }
+    body.lamp-mode .wish-rail-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    /* 🌙 11款书签在深色夜空下的专属质感 */
+    body.lamp-mode .wish-bookmark-strip.skin-ash { background: #46484D; border-color: #5A5D64; }
+    body.lamp-mode .wish-bookmark-strip.skin-indigo { background: #1C2735; box-shadow: 0 4px 16px rgba(10, 20, 35, 0.5); }
+    body.lamp-mode .wish-bookmark-strip.skin-matcha { background: #233127; box-shadow: 0 4px 16px rgba(15, 25, 20, 0.5); }
+    body.lamp-mode .wish-bookmark-strip.skin-vermilion { background: #852617; box-shadow: 0 4px 18px rgba(133, 38, 23, 0.4); }
+    body.lamp-mode .wish-bookmark-strip.skin-bamboo {
+      background-color: #594125;
+      border-color: #785A37;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-bamboo .wish-bookmark-text {
+      color: #F5E8D3;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.8);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-bamboo .wish-bookmark-author {
+      color: #DEC8A9;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-goldpaper {
+      background-color: #28241D;
+      color: #EBDAB4;
+      border-color: #8C7842;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-goldpaper .wish-bookmark-text {
+      color: #EBDAB4;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-goldpaper .wish-bookmark-author {
+      color: #C2B088;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ribbon {
+      background: linear-gradient(180deg, #872E1E 0%, #692113 100%);
+      box-shadow: 0 5px 18px rgba(135, 46, 30, 0.45);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ema {
+      background-color: #5C4125;
+      background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 2px, transparent 2px, transparent 7px);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ema .wish-bookmark-text {
+      color: #F5E8D3;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.8);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ema .wish-bookmark-author {
+      color: #EFA69E;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ticket {
+      background: #363430;
+      border-color: #5C5850;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ticket::after {
+      background: #0B0F19;
+      box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.6), calc(48px - 0px) 0 0 #0B0F19;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ticket .wish-bookmark-text {
+      color: #E6E1D8;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ticket .wish-bookmark-author {
+      color: #B5AFA2;
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ingot {
+      background: linear-gradient(180deg, #6B1510 0%, #4D0E0A 100%);
+      border-color: rgba(240, 196, 84, 0.65);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.65), 0 0 12px rgba(240, 196, 84, 0.25);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-ingot .ingot-sycee {
+      filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.6));
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-peace {
+      background: linear-gradient(180deg, #182620 0%, #0F1A15 100%);
+      border-color: rgba(175, 225, 205, 0.55);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.65), 0 0 12px rgba(180, 230, 210, 0.2);
+    }
+    body.lamp-mode .wish-bookmark-strip.skin-peace .peace-disc {
+      filter: drop-shadow(0 2px 8px rgba(220, 245, 235, 0.5));
+    }
+
+    /* 🌙 许愿弹窗深色夜空质感 */
+    body.lamp-mode .wish-modal-overlay {
+      background: rgba(3, 6, 14, 0.76) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    body.lamp-mode .wish-modal-card {
+      background-color: #121726 !important;
+      background-image: 
+        radial-gradient(circle at 85% 15%, rgba(65, 95, 160, 0.28) 0%, transparent 52%),
+        linear-gradient(180deg, #161C2C 0%, #0E1320 100%) !important;
+      border: 1px solid #28354D !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+      color: #EDE9E1 !important;
+    }
+    body.lamp-mode .wish-modal-header {
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.12) !important;
+    }
+    body.lamp-mode .wish-modal-title {
+      color: #FAF6ED !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+    body.lamp-mode .wish-modal-close {
+      color: #8D98AA !important;
+    }
+    body.lamp-mode .wish-modal-close:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: #FFFFFF !important;
+    }
+    body.lamp-mode .gb-textarea-wrap {
+      background: #0B0E18 !important;
+      border: 1px solid #222C3E !important;
+    }
+    body.lamp-mode .gb-textarea-wrap:focus-within {
+      border-color: #4C6690 !important;
+      background: #0D121F !important;
+      box-shadow: 0 0 16px rgba(76, 102, 144, 0.3) !important;
+    }
+    body.lamp-mode .gb-textarea {
+      color: #F8F5EE !important;
+    }
+    body.lamp-mode .gb-textarea::placeholder {
+      color: #586477 !important;
+    }
+    body.lamp-mode .gb-author-prefix {
+      color: #929EB0 !important;
+    }
+    body.lamp-mode .gb-author-input {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border: 1px dashed rgba(255, 255, 255, 0.22) !important;
+      color: #FFFFFF !important;
+    }
+    body.lamp-mode .gb-author-input::placeholder {
+      color: #586477 !important;
+    }
+    body.lamp-mode .gb-author-input:focus {
+      background: #141B2A !important;
+      border-color: #628BBF !important;
+    }
+    body.lamp-mode .gb-char-count {
+      color: #6E7B90 !important;
+    }
+    body.lamp-mode .wish-skin-label {
+      color: #929EB0 !important;
+    }
+    body.lamp-mode .wish-skin-opt input:checked + .skin-dot {
+      box-shadow: 0 0 0 2.5px #FFFFFF, 0 0 10px rgba(255, 255, 255, 0.6) !important;
+    }
+    body.lamp-mode .gb-submit-btn {
+      background: #B8402D !important;
+      color: #FFFFFF !important;
+      border-color: #8F2717 !important;
+      box-shadow: 0 4px 14px rgba(184, 64, 45, 0.35) !important;
+    }
+    body.lamp-mode .gb-submit-btn:hover {
+      background: #CB4A36 !important;
+      border-color: #A32E1C !important;
+      box-shadow: 0 6px 18px rgba(184, 64, 45, 0.5) !important;
+    }
+
+    /* 💌 许愿成功后的浪漫祈愿浮签 (Romantic Blessing Banner) - 位于网站中下方 */
+    .romantic-blessing-toast {
+      position: fixed;
+      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(24px) scale(0.92);
+      z-index: 1200;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      max-width: 90vw;
+    }
+
+    .romantic-blessing-toast.is-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    .romantic-blessing-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      background: rgba(254, 251, 245, 0.95);
+      border: 1px solid rgba(184, 150, 90, 0.45);
+      border-radius: 999px;
+      box-shadow: 0 12px 36px rgba(120, 80, 30, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(10px);
+    }
+
+    .romantic-blessing-icon {
+      font-size: 16px;
+      line-height: 1;
+      filter: drop-shadow(0 0 4px rgba(220, 170, 60, 0.5));
+    }
+
+    .romantic-blessing-text {
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #382B1E;
+      white-space: nowrap;
+    }
+
+    /* 🌙 深色夜幕下的星辉浮签 */
+    body.lamp-mode .romantic-blessing-inner {
+      background: rgba(13, 19, 32, 0.94);
+      border: 1px solid rgba(135, 175, 255, 0.4);
+      box-shadow: 0 14px 42px rgba(0, 0, 0, 0.75), 0 0 24px rgba(90, 140, 255, 0.28);
+    }
+
+    body.lamp-mode .romantic-blessing-text {
+      color: #FAF7EE;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.45);
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 640px) {
+      .wish-wall-app {
+        padding: 14px 12px 16px;
+      }
+      .guestbook-notebook {
+        padding: 0;
+      }
+      .gb-main-title {
+        font-size: 20px;
+      }
+      .gb-form-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .wish-skin-picker {
+        justify-content: flex-start;
+      }
+      .gb-submit-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .romantic-blessing-toast {
+        bottom: 50px;
+        max-width: 92vw;
+      }
+      .romantic-blessing-inner {
+        padding: 8px 18px;
+      }
+      .romantic-blessing-text {
+        font-size: 13.5px;
+        white-space: normal;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🌌 唯美深色夜空图层：明月高悬、繁星闪烁、流星划过 -->
+  <div class="night-sky-layer" id="nightSkyLayer" aria-hidden="true">
+    <div class="night-moon" title="皎洁明月"></div>
+    <div class="night-stars" id="nightStars"></div>
+    <div class="shooting-star shooting-star-1"></div>
+    <div class="shooting-star shooting-star-2"></div>
+    <div class="shooting-star shooting-star-3"></div>
+    <div class="shooting-star shooting-star-4"></div>
+  </div>
+
+  <!-- 💌 许愿成功浪漫祈愿浮签 (伴随烟花与星光升起) -->
+  <div class="romantic-blessing-toast" id="romanticBlessingToast" aria-live="polite">
+    <div class="romantic-blessing-inner">
+      <span class="romantic-blessing-icon" id="romanticBlessingIcon">✨</span>
+      <span class="romantic-blessing-text" id="romanticBlessingText"></span>
+    </div>
+  </div>
+
+  <div class="wish-wall-app">
+    <div class="guestbook-notebook">
+      
+      <!-- 顶部标题区：极简雅致，右上角为「🎋 许愿」操作按钮 -->
+      <div class="guestbook-header">
+        <div class="gb-title-badge">
+          <div class="gb-title-row">
+            <h1 class="gb-main-title">许愿墙</h1>
+          </div>
+        </div>
+        <button type="button" class="wish-open-modal-btn" id="wishOpenModalBtn" title="写下心愿挂上书签">🎋 许愿</button>
+      </div>
+
+      <!-- 许愿墙主视口：完全给导轨与飘带挂签留足空间，底部彻底无常驻输入框 -->
+      <div id="vaultUnlockedView">
+        <!-- 🎋 顶部悬挂书签导轨展示区 (Wish Bookmarks Rail) -->
+        <div class="wish-wall-section">
+          <div class="wish-rail-container">
+            <div class="wish-rail-scroll" id="wishBookmarksRail">
+              <div class="wish-rail-track" id="wishRailTrack">
+                <div class="wish-rail-axis" aria-hidden="true"></div>
+                <!-- 动态渲染书签挂签列表 -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🎋 案头许愿工坊弹窗 Modal -->
+  <div class="wish-modal-overlay" id="wishModalOverlay" style="display: none;">
+    <div class="wish-modal-card" id="wishModalCard" role="dialog" aria-modal="true">
+      <div class="wish-modal-header">
+        <div class="wish-modal-title" id="wishModalTitle">🎋 心愿签 · <span id="modalSkinName" class="modal-skin-name">雅致素笺</span></div>
+        <button type="button" class="wish-modal-close" id="wishModalClose" title="关闭">✕</button>
+      </div>
+      <form class="guestbook-form-card" id="guestbookForm">
+        <div class="gb-textarea-wrap">
+          <textarea class="gb-textarea" id="gbMessage" placeholder="写下你心中的愿望、期许，或对未来的祈祷（最多30字）……" rows="2" maxlength="30" required></textarea>
+          <div class="gb-textarea-bottom-bar">
+            <div class="gb-author-inline">
+              <span class="gb-author-prefix">✍️ 署名:</span>
+              <input type="text" class="gb-author-input" id="gbAuthor" placeholder="称呼(限5字)" maxlength="5" required />
+            </div>
+            <span class="gb-char-count" id="gbCharCount">0/30</span>
+          </div>
+        </div>
+
+        <div class="gb-form-footer">
+          <div class="wish-skin-picker" role="radiogroup" aria-label="选择许愿签物形态">
+            <span class="wish-skin-label">皮肤:</span>
+            <label class="wish-skin-opt" title="素灰 · 雅致素笺">
+              <input type="radio" name="gbSkin" value="ash" checked />
+              <span class="skin-dot skin-dot--ash"></span>
+            </label>
+            <label class="wish-skin-opt" title="藏蓝 · 静夜深蓝">
+              <input type="radio" name="gbSkin" value="indigo" />
+              <span class="skin-dot skin-dot--indigo"></span>
+            </label>
+            <label class="wish-skin-opt" title="黛绿 · 松烟竹青">
+              <input type="radio" name="gbSkin" value="matcha" />
+              <span class="skin-dot skin-dot--matcha"></span>
+            </label>
+            <label class="wish-skin-opt" title="朱砂 · 上岸红笺">
+              <input type="radio" name="gbSkin" value="vermilion" />
+              <span class="skin-dot skin-dot--vermilion"></span>
+            </label>
+            <label class="wish-skin-opt" title="古拙 · 楠木竹简">
+              <input type="radio" name="gbSkin" value="bamboo" />
+              <span class="skin-dot skin-dot--bamboo"></span>
+            </label>
+            <label class="wish-skin-opt" title="泥金 · 洒金宣纸">
+              <input type="radio" name="gbSkin" value="goldpaper" />
+              <span class="skin-dot skin-dot--goldpaper"></span>
+            </label>
+            <label class="wish-skin-opt" title="燕尾 · 织金飘带 (深V燕尾)">
+              <input type="radio" name="gbSkin" value="ribbon" />
+              <span class="skin-dot skin-dot--ribbon"></span>
+            </label>
+            <label class="wish-skin-opt" title="绘马 · 神社木牌 (屋檐裁切)">
+              <input type="radio" name="gbSkin" value="ema" />
+              <span class="skin-dot skin-dot--ema"></span>
+            </label>
+            <label class="wish-skin-opt" title="车票 · 齿孔票根 (打孔检票)">
+              <input type="radio" name="gbSkin" value="ticket" />
+              <span class="skin-dot skin-dot--ticket"></span>
+            </label>
+            <label class="wish-skin-opt" title="元宝 · 聚宝招财 (福运金坠)">
+              <input type="radio" name="gbSkin" value="ingot" />
+              <span class="skin-dot skin-dot--ingot"></span>
+            </label>
+            <label class="wish-skin-opt" title="青玉 · 岁岁平安 (平安玉扣)">
+              <input type="radio" name="gbSkin" value="peace" />
+              <span class="skin-dot skin-dot--peace"></span>
+            </label>
+          </div>
+
+          <button type="submit" class="gb-submit-btn" id="gbSubmitBtn">🎋 悬挂心愿签</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
